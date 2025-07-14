@@ -1,0 +1,159 @@
+<!-- This is the full final code including WhatsApp order, product uploader, and dynamic product display -->
+<!-- You only need to add your images in an 'images' folder if not using image URLs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SoleStep - Your Shoe Store</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f9f9f9; }
+    header { background: #111; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; }
+    nav { display: none; flex-direction: column; background: #222; position: absolute; top: 60px; right: 0; width: 200px; }
+    nav a { color: white; padding: 1rem; text-decoration: none; border-bottom: 1px solid #333; }
+    .menu-toggle { display: none; flex-direction: column; cursor: pointer; }
+    .menu-toggle span { background: white; height: 3px; margin: 4px 0; width: 25px; }
+    .container { padding: 2rem; max-width: 900px; margin: auto; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .product { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s; cursor: pointer; }
+    .product:hover { transform: translateY(-5px); }
+    .product img { width: 100%; height: 200px; object-fit: cover; }
+    .product-info { padding: 1rem; }
+    .product-info h3 { margin: 0 0 0.5rem; }
+    .product-info p { margin: 0.5rem 0; color: #666; }
+    .price { color: #000; font-weight: bold; }
+    .btn { background: #111; color: white; padding: 0.5rem 1rem; border: none; cursor: pointer; border-radius: 4px; margin-top: 0.5rem; }
+    .btn:hover { background: #333; }
+    #productModal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 2rem; border-radius: 10px; max-width: 400px; width: 90%; text-align: center; }
+    .modal-content img { max-width: 100%; margin-bottom: 1rem; }
+    form { background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    form input, form button { width: 100%; padding: 0.5rem; margin: 0.5rem 0 1rem 0; font-size: 1rem; }
+    form label { font-weight: bold; }
+    @media (max-width: 600px) { .menu-toggle { display: flex; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>SoleStep</h1>
+  <div class="menu-toggle" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+  <nav id="mobileNav">
+    <a href="#">Home</a>
+    <a href="#">Shop</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+  <button class="btn" onclick="alert('Cart coming soon!')">Cart (<span id="cartCount">0</span>)</button>
+</header>
+
+<div class="container">
+  <h2>Add a New Product</h2>
+  <form id="productForm">
+    <label for="productName">Product Name</label>
+    <input type="text" id="productName" required placeholder="e.g. Red Sneakers" />
+    
+    <label for="productPrice">Price (USD)</label>
+    <input type="number" step="0.01" id="productPrice" required placeholder="e.g. 79.99" />
+    
+    <label for="productImage">Product Image</label>
+    <input type="file" id="productImage" accept="image/*" required />
+    
+    <button type="submit" class="btn">Add Product</button>
+  </form>
+
+  <h2>Our Shoes</h2>
+  <div class="product-grid" id="productGrid"></div>
+</div>
+
+<div id="productModal">
+  <div class="modal-content">
+    <img id="modalImg" src="" alt="Product" />
+    <h3 id="modalTitle"></h3>
+    <p class="price" id="modalPrice"></p>
+    <a id="whatsappLink" class="btn" target="_blank">Order on WhatsApp</a>
+    <br><br>
+    <button class="btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  const phoneNumber = '254110301389';
+  const products = [
+    { name: 'Classic White Sneakers', price: '59.99', image: 'https://via.placeholder.com/300x200' }
+  ];
+
+  const productGrid = document.getElementById('productGrid');
+  const productForm = document.getElementById('productForm');
+
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  function showProduct(name, price, img) {
+    document.getElementById('modalTitle').textContent = name;
+    document.getElementById('modalPrice').textContent = '$' + price;
+    document.getElementById('modalImg').src = img;
+    document.getElementById('productModal').style.display = 'flex';
+    const msg = `Hello! I'm interested in *${name}* which costs $${price}. Here's the image link: ${img}`;
+    document.getElementById('whatsappLink').href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function closeModal() {
+    document.getElementById('productModal').style.display = 'none';
+  }
+
+  let cartCount = 0;
+  function addToCart() {
+    cartCount++;
+    document.getElementById('cartCount').textContent = cartCount;
+    alert('Added to cart!');
+  }
+
+  function renderProducts() {
+    productGrid.innerHTML = '';
+    products.forEach(product => {
+      productGrid.innerHTML += `
+        <div class="product" onclick="showProduct('${product.name}', '${product.price}', '${product.image}')">
+          <img src="${product.image}" alt="${product.name}" />
+          <div class="product-info">
+            <h3>${product.name}</h3>
+            <p class="price">$${product.price}</p>
+            <button class="btn" onclick="event.stopPropagation(); addToCart()">Add to Cart</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  productForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('productName').value.trim();
+    const price = document.getElementById('productPrice').value.trim();
+    const imageInput = document.getElementById('productImage');
+
+    if (!name || !price || !imageInput.files.length) {
+      alert('Please fill out all fields and upload an image.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const imageUrl = event.target.result;
+      products.push({ name, price, image: imageUrl });
+      renderProducts();
+      productForm.reset();
+    };
+    reader.readAsDataURL(imageInput.files[0]);
+  });
+
+  renderProducts();
+</script>
+
+</body>
+</html>
